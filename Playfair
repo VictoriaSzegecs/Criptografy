@@ -1,0 +1,84 @@
+using System;
+using System.Text;
+
+class PlayfairCipher
+{
+    static char[,] matrice = new char[5, 5];
+    static string alfabet = "ABCDEFGHIKLMNOPQRSTUVWXYZ"; // fara J
+
+    static void Main()
+    {
+        Console.Write("Introdu cheia: ");
+        string cheie = Console.ReadLine().ToUpper();
+
+        Console.Write("Introdu textul: ");
+        string text = Console.ReadLine().ToUpper();
+
+        Console.WriteLine("\n1 - Criptare");
+        Console.WriteLine("2 - Decriptare");
+        Console.Write("Optiune: ");
+        int opt = int.Parse(Console.ReadLine());
+
+        ConstruireMatrice(cheie);
+
+        if (opt == 1)
+            Console.WriteLine("\nText criptat: " + Criptare(text));
+        else
+            Console.WriteLine("\nText decriptat: " + Decriptare(text));
+    }
+
+    static void ConstruireMatrice(string cheie)
+    {
+        StringBuilder sb = new StringBuilder();
+
+        foreach (char c in cheie)
+            if (alfabet.Contains(c) && !sb.ToString().Contains(c))
+                sb.Append(c);
+
+        foreach (char c in alfabet)
+            if (!sb.ToString().Contains(c))
+                sb.Append(c);
+
+        int k = 0;
+        for (int i = 0; i < 5; i++)
+            for (int j = 0; j < 5; j++)
+                matrice[i, j] = sb[k++];
+    }
+
+    static string PregatireText(string text)
+    {
+        text = text.Replace("J", "I");
+        StringBuilder rezultat = new StringBuilder();
+
+        for (int i = 0; i < text.Length; i++)
+        {
+            char c1 = text[i];
+            if (!char.IsLetter(c1)) continue;
+
+            char c2 = 'X';
+            if (i + 1 < text.Length && text[i + 1] != c1)
+            {
+                c2 = text[i + 1];
+                i++;
+            }
+
+            rezultat.Append(c1);
+            rezultat.Append(c2);
+        }
+
+        if (rezultat.Length % 2 != 0)
+            rezultat.Append('X');
+
+        return rezultat.ToString();
+    }
+
+    static string Criptare(string text)
+    {
+        text = PregatireText(text);
+        StringBuilder rezultat = new StringBuilder();
+
+        for (int i = 0; i < text.Length; i += 2)
+            rezultat.Append(ProceseazaPereche(text[i], text[i + 1], true));
+
+        return rezultat.ToString();
+    }
