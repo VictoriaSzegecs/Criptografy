@@ -1,0 +1,68 @@
+using System;
+
+class CifruPlusN
+{
+    static void Main()
+    {
+        Console.WriteLine("Introdu textul:");
+        string text = Console.ReadLine();
+
+        Console.WriteLine("\nAlege operatia:");
+        Console.WriteLine("1 - Criptare (+n)");
+        Console.WriteLine("2 - Decriptare (-n)");
+        Console.WriteLine("3 - Criptanaliza");
+        Console.Write("Optiune: ");
+        int optiune = int.Parse(Console.ReadLine());
+
+        if (optiune == 1 || optiune == 2)
+        {
+            Console.Write("Introdu cheia n (0..25): ");
+            int n = int.Parse(Console.ReadLine()) % 26;
+
+            if (optiune == 1)
+                Console.WriteLine("\nText criptat:\n" + Criptare(text, n));
+            else
+                Console.WriteLine("\nText decriptat:\n" + Decriptare(text, n));
+        }
+        else if (optiune == 3)
+        {
+            Console.WriteLine("\nCriptanaliza:");
+            Criptanaliza(text);
+        }
+        else
+        {
+            Console.WriteLine("Optiune invalida!");
+        }
+    }
+
+    static string Criptare(string text, int n)
+    {
+        char[] rezultat = text.ToCharArray();
+
+        for (int i = 0; i < rezultat.Length; i++)
+        {
+            char c = rezultat[i];
+
+            if (char.IsLetter(c))
+            {
+                char baza = char.IsUpper(c) ? 'A' : 'a';
+                rezultat[i] = (char)((c - baza + n) % 26 + baza);
+            }
+        }
+
+        return new string(rezultat);
+    }
+
+    static string Decriptare(string text, int n)
+    {
+        return Criptare(text, (26 - n) % 26);
+    }
+
+    static void Criptanaliza(string text)
+    {
+        for (int n = 0; n < 26; n++)
+        {
+            Console.WriteLine($"n = {n} -> {Criptare(text, 26 - n)}");
+        }
+    }
+}
