@@ -1,0 +1,40 @@
+using System;
+using System.IO;
+using System.Security.Cryptography;
+
+class FileHashCalculator
+{
+    static void Main()
+    {
+        Console.Write("Introdu calea fisierului: ");
+        string filePath = Console.ReadLine();
+
+        if (!File.Exists(filePath))
+        {
+            Console.WriteLine("Fisierul nu exista!");
+            return;
+        }
+
+        Console.WriteLine("\nHash-uri calculate:\n");
+
+        ComputeHash(filePath, MD5.Create(), "MD5");
+        ComputeHash(filePath, RIPEMD160.Create(), "RIPEMD160");
+        ComputeHash(filePath, SHA1.Create(), "SHA1");
+        ComputeHash(filePath, SHA256.Create(), "SHA256");
+        ComputeHash(filePath, SHA384.Create(), "SHA384");
+        ComputeHash(filePath, SHA512.Create(), "SHA512");
+
+        // SHA-3 (disponibil in .NET 8+)
+        ComputeHash(filePath, SHA3_256.Create(), "SHA3-256");
+        ComputeHash(filePath, SHA3_384.Create(), "SHA3-384");
+        ComputeHash(filePath, SHA3_512.Create(), "SHA3-512");
+    }
+
+    static void ComputeHash(string filePath, HashAlgorithm algorithm, string name)
+    {
+        using FileStream fs = File.OpenRead(filePath);
+        byte[] hash = algorithm.ComputeHash(fs);
+
+        Console.WriteLine($"{name}: {BitConverter.ToString(hash).Replace("-", "")}");
+    }
+}
