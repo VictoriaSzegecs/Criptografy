@@ -1,0 +1,123 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+class SubstitutieMonoalfabetica
+{
+    static string alfabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    static string cheie = "MIPODSQWERTYUIOPLKJHGFVCXZ"; // permutare
+
+    static void Main()
+    {
+        Console.WriteLine("Introdu textul:");
+        string text = Console.ReadLine().ToUpper();
+
+        Console.WriteLine("\nAlege operatia:");
+        Console.WriteLine("1 - Criptare");
+        Console.WriteLine("2 - Decriptare");
+        Console.WriteLine("3 - Criptanaliza (frecventa)");
+        Console.Write("Optiune: ");
+        int optiune = int.Parse(Console.ReadLine());
+
+        switch (optiune)
+        {
+            case 1:
+                Console.WriteLine("\nText criptat:");
+                Console.WriteLine(Criptare(text));
+                break;
+
+            case 2:
+                Console.WriteLine("\nText decriptat:");
+                Console.WriteLine(Decriptare(text));
+                break;
+
+            case 3:
+                Console.WriteLine("\nCriptanaliza:");
+                Criptanaliza(text);
+                break;
+
+            default:
+                Console.WriteLine("Optiune invalida!");
+                break;
+        }
+    }
+
+    static string Criptare(string text)
+    {
+        char[] rezultat = text.ToCharArray();
+
+        for (int i = 0; i < rezultat.Length; i++)
+        {
+            char c = rezultat[i];
+
+            if (alfabet.Contains(c))
+            {
+                int index = alfabet.IndexOf(c);
+                rezultat[i] = cheie[index];
+            }
+        }
+
+        return new string(rezultat);
+    }
+
+    static string Decriptare(string text)
+    {
+        char[] rezultat = text.ToCharArray();
+
+        for (int i = 0; i < rezultat.Length; i++)
+        {
+            char c = rezultat[i];
+
+            if (cheie.Contains(c))
+            {
+                int index = cheie.IndexOf(c);
+                rezultat[i] = alfabet[index];
+            }
+        }
+
+        return new string(rezultat);
+    }
+
+    static void Criptanaliza(string text)
+    {
+        // frecvente standard pentru limba engleza (ordonate descrescator)
+        string frecventaEngleza = "ETAOINSHRDLCUMWFGYPBVKJXQZ";
+
+        Dictionary<char, int> frecvente = new Dictionary<char, int>();
+
+        foreach (char c in text)
+        {
+            if (alfabet.Contains(c))
+            {
+                if (!frecvente.ContainsKey(c))
+                    frecvente[c] = 0;
+                frecvente[c]++;
+            }
+        }
+
+        var ordonat = frecvente.OrderByDescending(x => x.Value).ToList();
+
+        Console.WriteLine("\nFrecventa litere in textul criptat:");
+        foreach (var item in ordonat)
+            Console.WriteLine($"{item.Key} : {item.Value}");
+
+        Console.WriteLine("\nPosibila decriptare (bazata pe frecventa):");
+
+        Dictionary<char, char> substitutie = new Dictionary<char, char>();
+
+        for (int i = 0; i < ordonat.Count && i < frecventaEngleza.Length; i++)
+        {
+            substitutie[ordonat[i].Key] = frecventaEngleza[i];
+        }
+
+        foreach (char c in text)
+        {
+            if (substitutie.ContainsKey(c))
+                Console.Write(substitutie[c]);
+            else
+                Console.Write(c);
+        }
+
+        Console.WriteLine();
+    }
+}
