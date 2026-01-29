@@ -1,0 +1,107 @@
+using System;
+using System.Collections.Generic;
+
+class MerkleHellman
+{
+    static void Main()
+    {
+        // Cheie privata
+        int[] w = { 2, 3, 7, 14, 30, 57, 120, 251 }; // supercrescator
+        int q = 491;                               // q > suma(w)
+        int r = 41;                                // gcd(r, q) = 1
+
+        // Cheie publica
+        int[] b = GenerareCheiePublica(w, q, r);
+
+        Console.WriteLine("Cheie publica:");
+        Console.WriteLine(string.Join(" ", b));
+
+        Console.Write("\nText de criptat (A-Z): ");
+        string plaintext = Console.ReadLine().ToUpper();
+
+        List<int> criptat = Criptare(plaintext, b);
+
+        Console.WriteLine("\nText criptat:");
+        Console.WriteLine(string.Join(" ", criptat));
+
+        string decriptat = Decriptare(criptat, w, q, r);
+
+        Console.WriteLine("\nText decriptat:");
+        Console.WriteLine(decriptat);
+    }
+
+    //criptare
+    static List<int> Criptare(string text, int[] b)
+    {
+        List<int> rezultat = new List<int>();
+
+        foreach (char c in text)
+        {
+            if (c < 'A' || c > 'Z')
+                continue;
+
+            string binar = Convert.ToString(c - 'A', 2).PadLeft(b.Length, '0');
+            int suma = 0;
+
+            for (int i = 0; i < b.Length; i++)
+                if (binar[i] == '1')
+                    suma += b[i];
+
+            rezultat.Add(suma);
+        }
+
+        return rezultat;
+    }
+
+    // decriptare
+    static string Decriptare(List<int> criptat, int[] w, int q, int r)
+    {
+        string rezultat = "";
+        int rInv = InversModular(r, q);
+
+        foreach (int c in criptat)
+        {
+            int s = (c * rInv) % q;
+            int valoare = RezolvaSupercrescator(w, s);
+            rezultat += (char)(valoare + 'A');
+        }
+
+        return rezultat;
+    }
+
+    // cheie publica
+    static int[] GenerareCheiePublica(int[] w, int q, int r)
+    {
+        int[] b = new int[w.Length];
+        for (int i = 0; i < w.Length; i++)
+            b[i] = (r * w[i]) % q;
+        return b;
+    }
+
+    //rezolvare rucsac
+    static int RezolvaSupercrescator(int[] w, int suma)
+    {
+        int rezultat = 0;
+
+        for (int i = w.Length - 1; i >= 0; i--)
+        {
+            if (w[i] <= suma)
+            {
+                suma -= w[i];
+                rezultat |= (1 << (w.Length - 1 - i));
+            }
+        }
+
+        return rezultat;
+    }
+
+    // invers modular
+    static int InversModular(int a, int m)
+    {
+        for (int x = 1; x < m; x++)
+            if ((a * x) % m == 1)
+                return x;
+
+        throw new Exception("Invers modular inexistent.");
+    }
+}
