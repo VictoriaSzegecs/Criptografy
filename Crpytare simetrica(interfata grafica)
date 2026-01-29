@@ -1,0 +1,53 @@
+<Window x:Class="CryptoApp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="File Encryption Tool" Height="450" Width="600">
+
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- File -->
+        <Button Content="Select File" Click="SelectFile_Click"/>
+        <TextBlock x:Name="FilePathText" Grid.Row="1" Margin="0,5"/>
+
+        <!-- Algorithm -->
+        <ComboBox x:Name="AlgorithmBox" Grid.Row="2" Margin="0,5">
+            <ComboBoxItem Content="AES"/>
+            <ComboBoxItem Content="DES"/>
+            <ComboBoxItem Content="TripleDES"/>
+            <ComboBoxItem Content="Rijndael"/>
+            <ComboBoxItem Content="RC2"/>
+        </ComboBox>
+
+        <!-- CipherMode -->
+        <ComboBox x:Name="ModeBox" Grid.Row="3" Margin="0,5">
+            <ComboBoxItem Content="CBC"/>
+            <ComboBoxItem Content="ECB"/>
+            <ComboBoxItem Content="CFB"/>
+            <ComboBoxItem Content="OFB"/>
+        </ComboBox>
+
+        <!-- Padding -->
+        <ComboBox x:Name="PaddingBox" Grid.Row="4" Margin="0,5">
+            <ComboBoxItem Content="PKCS7"/>
+            <ComboBoxItem Content="Zeros"/>
+            <ComboBoxItem Content="None"/>
+        </ComboBox>
+
+        <!-- Password -->
+        <StackPanel Grid.Row="5">
+            <TextBox x:Name="PasswordBox" Margin="0,5"
+                     PlaceholderText="Password (optional)"/>
+            <Button Content="Encrypt" Click="Encrypt_Click"/>
+            <Button Content="Decrypt" Click="Decrypt_Click" Margin="0,5"/>
+            <ProgressBar x:Name="Progress" Height="20"/>
+        </StackPanel>
+    </Grid>
+</Window>
