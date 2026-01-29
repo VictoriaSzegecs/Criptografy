@@ -1,0 +1,70 @@
+using System;
+
+class CezarCipher
+{
+    static void Main()
+    {
+        Console.WriteLine("Introdu textul:");
+        string text = Console.ReadLine();
+
+        Console.WriteLine("\nAlege operatia:");
+        Console.WriteLine("1 - Criptare (+3)");
+        Console.WriteLine("2 - Decriptare (-3)");
+        Console.WriteLine("3 - Criptanaliza");
+        Console.Write("Optiune: ");
+        int optiune = int.Parse(Console.ReadLine());
+
+        switch (optiune)
+        {
+            case 1:
+                Console.WriteLine("\nText criptat:");
+                Console.WriteLine(Criptare(text, 3));
+                break;
+
+            case 2:
+                Console.WriteLine("\nText decriptat:");
+                Console.WriteLine(Decriptare(text, 3));
+                break;
+
+            case 3:
+                Console.WriteLine("\nCriptanaliza:");
+                Criptanaliza(text);
+                break;
+
+            default:
+                Console.WriteLine("Optiune invalida!");
+                break;
+        }
+    }
+
+    static string Criptare(string text, int shift)
+    {
+        char[] rezultat = text.ToCharArray();
+
+        for (int i = 0; i < rezultat.Length; i++)
+        {
+            char c = rezultat[i];
+
+            if (char.IsLetter(c))
+            {
+                char baza = char.IsUpper(c) ? 'A' : 'a';
+                rezultat[i] = (char)((c - baza + shift) % 26 + baza);
+            }
+        }
+
+        return new string(rezultat);
+    }
+
+    static string Decriptare(string text, int shift)
+    {
+        return Criptare(text, 26 - shift);
+    }
+
+    static void Criptanaliza(string text)
+    {
+        for (int i = 1; i <= 25; i++)
+        {
+            Console.WriteLine($"Deplasare {i}: {Criptare(text, i)}");
+        }
+    }
+}
