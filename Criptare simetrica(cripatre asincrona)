@@ -1,0 +1,112 @@
+using Microsoft.Win32;
+using System;
+using System.IO;
+using System.Security.Cryptography;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+
+namespace CryptoApp
+{
+    public partial class MainWindow : Window
+    {
+        string filePath;
+
+        public MainWindow()
+        {
+            InitializeComponent();
+            AlgorithmBox.SelectedIndex = 0;
+            ModeBox.SelectedIndex = 0;
+            PaddingBox.SelectedIndex = 0;
+        }
+
+        private void SelectFile_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog dialog = new OpenFileDialog();
+            if (dialog.ShowDialog() == true)
+            {
+                filePath = dialog.FileName;
+                FilePathText.Text = filePath;
+            }
+        }
+
+        private async void Encrypt_Click(object sender, RoutedEventArgs e)
+        {
+            await ProcessFileAsync(true);
+        }
+
+        private async void Decrypt_Click(object sender, RoutedEventArgs e)
+        {
+            await ProcessFileAsync(false);
+        }
+
+        private async Task ProcessFileAsync(bool encrypt)
+        {
+            if (filePath == null) return;
+
+            Progress.IsIndeterminate = true;
+
+            await Task.Run(() =>
+            {
+                using SymmetricAlgorithm alg = CreateAlgorithm();
+
+                byte[] key, iv;
+                GenerateKeyAndIV(alg, out key, out iv);
+
+                string output = encrypt ? filePath + ".enc" : filePath + ".dec";
+
+                using FileStream input = new FileStream(filePath, FileMode.Open);
+                using FileStream outputFile = new FileStream(output, FileMode.Create);
+
+                using ICryptoTransform transform =
+                    encrypt ? alg.CreateEncryptor(key, iv)
+                            : alg.CreateDecryptor(key, iv);
+
+                using CryptoStream crypto =
+                    new CryptoStream(outputFile, transform, CryptoStreamMode.Write);
+
+                input.CopyTo(crypto);
+            });
+
+            Progress.IsIndeterminate = false;
+            MessageBox.Show("Operation completed!");
+        }
+
+        private SymmetricAlgorithm CreateAlgorithm()
+        {
+            SymmetricAlgorithm alg = AlgorithmBox.Text switch
+            {
+                "AES" => Aes.Create(),
+                "DES" => DES.Create(),
+                "TripleDES" => TripleDES.Create(),
+                "Rijndael" => Rijndael.Create(),
+                "RC2" => RC2.Create(),
+                _ => Aes.Create()
+            };
+
+            alg.Mode = Enum.Parse<CipherMode>(ModeBox.Text);
+            alg.Padding = Enum.Parse<PaddingMode>(PaddingBox.Text);
+            return alg;
+        }
+
+        private void GenerateKeyAndIV(SymmetricAlgorithm alg,
+            out byte[] key, out byte[] iv)
+        {
+            if (!string.IsNullOrEmpty(PasswordBox.Text))
+            {
+                var pdb = new Rfc2898DeriveBytes(
+                    PasswordBox.Text, 16, 10000);
+
+                key = pdb.GetBytes(alg.KeySize / 8);
+                iv = pdb.GetBytes(alg.BlockSize / 8);
+            }
+            else
+            {
+                alg.GenerateKey();
+                alg.GenerateIV();
+                key = alg.Key;
+                iv = alg.IV;
+            }
+        }
+    }
+}
